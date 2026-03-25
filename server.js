@@ -48,6 +48,38 @@ app.post('/incidentes', async (req, res) => {
     await db.run(`INSERT INTO incidentes (tipo_problema, localizacao, descricao, prioridade, nome_solicitante, contato_solicitante, data_registro, hora_registro, imagem_problema) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [tipo_problema, localizacao, descricao, prioridade, nome_solicitante, contato_solicitante, data_registro, hora_registro, imagem_problema] )
 
     res.send(`Incidente novo registrado: ${tipo_problema} registrado na data ${data_registro} por ${nome_solicitante}`)
+})
+
+// ROTA DE ATUALIZAÇÃO: Responsável por editar um incidente já existente no banco
+
+app.put('/incidentes/:id', async (req, res) => {
+
+    //Pega o ID do incidente que vem pela URL. (Ex: /incidentes/11)
+    const { id } = req.params 
+
+    const { descricao, prioridade, status_resolucao} = req.body
+
+    // Abre a conexão com o banco de dados
+    const db = await criarBanco()
+
+    await db.run(`
+        UPDATE incidentes 
+        SET descricao = ?, prioridade = ?, status_resolucao = ?
+        WHERE id = ?
+        `, [descricao, prioridade, status_resolucao, id])
+
+    res.send(`O incidente de ID ${id} foi atualizado com sucesso`)
+})
+
+// ROTA DE REMOÇÃO: Responsável por apagar um incidente do banco de dados
+app.delete('/incidentes/:id', async (req, res) => {
+    const { id } = req.params
+    const db = await criarBanco()
+    
+    await db.run(`DELETE FROM incidentes WHERE id = ?`, [id])
+
+    res.send(`O incidente de id ${id} foi removido com sucesso`)
 
 
 })
+
